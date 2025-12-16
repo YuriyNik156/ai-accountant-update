@@ -1,5 +1,6 @@
 import httpx
 from fastapi import APIRouter, Depends, HTTPException
+from app.core.auth import get_current_user
 from sqlalchemy.orm import Session
 
 from app.core.config import AI_BASE_URL, AI_API_KEY, AI_TIMEOUT
@@ -36,9 +37,11 @@ async def ask_assistant(query: str, session_id: str, history: list = None):
 @router.post("/query")
 async def query_assistant(
     request: QueryRequest,
-    user_id: int,
+    current_user = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    user_id = current_user.id
+
     # 1️⃣ Отправляем запрос на AI
     ai_response = await ask_assistant(
         query=request.query,

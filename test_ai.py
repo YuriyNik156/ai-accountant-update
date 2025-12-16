@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 async def test_ai():
     request = QueryRequest(
-        query="Как долго хранится кредитная история?",
+        query="Что ты умеешь?",
         session_id="test_session_001",
         history=[]
     )

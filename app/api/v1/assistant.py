@@ -1,4 +1,3 @@
-# app/api/v1/assistant.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database.session import get_db
@@ -8,8 +7,10 @@ from app.core.ai_client import ask_assistant  # твой async HTTP клиент
 router = APIRouter(prefix="/assistant", tags=["assistant"])
 
 @router.post("/query")
-async def query_assistant(query: str, session_id: str, history: list = None, user_id: int = 1, db: Session = Depends(get_db)):
-    history = history or []
+async def query_assistant(request: QueryRequest, user_id: int, db: Session = Depends(get_db)):
+    query = request.query
+    session_id = request.session_id
+    history = request.history
 
     # 1️⃣ Отправка запроса на AI
     try:

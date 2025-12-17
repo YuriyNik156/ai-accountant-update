@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Accountant – Test Frontend</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f5f5f5;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 8px;
+      margin: 6px 0;
+    }
+    button {
+      cursor: pointer;
+    }
+    .box {
+      background: white;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+    }
+    pre {
+      background: #eee;
+      padding: 10px;
+      max-height: 300px;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🧪 ИИ для бухгалтера - Фронтенд</h1>
+
+<div class="box">
+  <h2>🔐 Авторизация</h2>
+  <input id="email" placeholder="Email" />
+  <input id="password" type="password" placeholder="Пароль" />
+  <button onclick="login()">Войти</button>
+  <pre id="authResult"></pre>
+</div>
+
+<div class="box">
+  <h2>💬 Запрос к ИИ</h2>
+  <textarea id="question" rows="3" placeholder="Введите вопрос..."></textarea>
+  <button onclick="askAI()">Спросить</button>
+</div>
+
+<div class="box">
+  <h2>🤖 Ответ ИИ</h2>
+  <pre id="aiResponse"></pre>
+</div>
+
+<div class="box">
+  <h2>📜 История</h2>
+  <pre id="history"></pre>
+</div>
+
+<script>
+  const API_BASE = "http://127.0.0.1:8000"
+  let accessToken = null
+  let sessionId = "test_session_frontend"
+
+  async function login() {
+    const email = document.getElementById("email").value
+    const password = document.getElementById("password").value
+
+    const response = await fetch(`${API_BASE}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    })
+
+    const data = await response.json()
+    document.getElementById("authResult").textContent =
+      JSON.stringify(data, null, 2)
+
+    if (data.access_token) {
+      accessToken = data.access_token
+    }
+  }
+
+  async function askAI() {
+    if (!accessToken) {
+      alert("Сначала авторизуйся")
+      return
+    }
+
+    const question = document.getElementById("question").value
+
+    const response = await fetch(`${API_BASE}/api/v1/assistant/query`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${accessToken}`
+      },
+      body: JSON.stringify({
+        question,
+        session_id: sessionId
+      })
+    })
+
+    const data = await response.json()
+
+    document.getElementById("aiResponse").textContent =
+      JSON.stringify(data.answer, null, 2)
+
+    document.getElementById("history").textContent =
+      JSON.stringify(data.history, null, 2)
+  }
+</script>
+
+</body>
+</html>

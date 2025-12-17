@@ -13,9 +13,6 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60))
 
-print(os.getenv("SECRET_KEY"))
-print(os.getenv("ALGORITHM"))
-
 if not AI_BASE_URL or not AI_API_KEY:
     raise RuntimeError("AI_BASE_URL или AI_API_KEY не заданы в окружении")
 if not SECRET_KEY:

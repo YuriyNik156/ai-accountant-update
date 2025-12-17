@@ -40,26 +40,26 @@ async def query_assistant(
     current_user = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    user_id = current_user.id
+    history_payload = [
+        item.model_dump() for item in request.history
+    ] if request.history else []
 
-    # 1️⃣ Отправляем запрос на AI
     ai_response = await ask_assistant(
         query=request.query,
         session_id=request.session_id,
-        history=request.history
+        history=history_payload
     )
 
-    # 2️⃣ Сохраняем сообщение пользователя
+    # сохраняем сообщения
     db.add(ChatMessage(
-        user_id=user_id,
+        user_id=current_user.id,
         session_id=request.session_id,
         role="user",
         content=request.query
     ))
 
-    # 3️⃣ Сохраняем сообщение ассистента
     db.add(ChatMessage(
-        user_id=user_id,
+        user_id=current_user.id,
         session_id=request.session_id,
         role="assistant",
         content=ai_response["answer"],
@@ -68,5 +68,4 @@ async def query_assistant(
     ))
 
     db.commit()
-
     return ai_response

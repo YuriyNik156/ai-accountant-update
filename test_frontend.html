@@ -63,12 +63,13 @@
   const API_BASE = "http://127.0.0.1:8000"
   let accessToken = null
   let sessionId = "test_session_frontend"
+  let history = []
 
   async function login() {
     const email = document.getElementById("email").value
     const password = document.getElementById("password").value
 
-    const response = await fetch(`${API_BASE}/auth/login`, {
+    const response = await fetch(`${API_BASE}/auth/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password })
@@ -83,7 +84,7 @@
     }
   }
 
-  async function askAI() {
+async function askAI() {
     if (!accessToken) {
       alert("Сначала авторизуйся")
       return
@@ -91,25 +92,39 @@
 
     const question = document.getElementById("question").value
 
-    const response = await fetch(`${API_BASE}/api/v1/assistant/query`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${accessToken}`
-      },
-      body: JSON.stringify({
-        question,
-        session_id: sessionId
+    history.push({ role: "user", content: question })
+
+    try {
+      const response = await fetch(`${API_BASE}/api/v1/assistant/query`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+          query: question,
+          session_id: sessionId,
+          history: history
+        })
       })
-    })
 
-    const data = await response.json()
+      const data = await response.json()
 
-    document.getElementById("aiResponse").textContent =
-      JSON.stringify(data.answer, null, 2)
+      history.push({ role: "assistant", content: data.answer })
 
-    document.getElementById("history").textContent =
-      JSON.stringify(data.history, null, 2)
+      console.log("Ответ backend:", data)
+
+      document.getElementById("aiResponse").textContent =
+        JSON.stringify(data.answer ?? data, null, 2)
+
+      document.getElementById("history").textContent =
+        JSON.stringify(history, null, 2)
+
+    } catch (err) {
+      console.error("Ошибка запроса к ИИ:", err)
+      document.getElementById("aiResponse").textContent =
+        "Ошибка запроса, смотри console"
+    }
   }
 </script>
 

@@ -94,6 +94,19 @@
   let sessionId = "test_session_frontend"
   let history = []
 
+    function renderHistory(history) {
+    return history
+      .map(item => {
+        const author =
+          item.role === "user"
+            ? "👤 Пользователь"
+            : "🤖 ИИ-ассистент"
+
+        return `${author}:\n${item.content}`
+      })
+      .join("\n\n────────────────────────\n\n")
+  }
+
   async function login() {
     const email = document.getElementById("email").value
     const password = document.getElementById("password").value
@@ -104,12 +117,13 @@
       body: JSON.stringify({ email, password })
     })
 
-    const data = await response.json()
-    document.getElementById("authResult").textContent =
-      JSON.stringify(data, null, 2)
+  const data = await response.json()
 
-    if (data.access_token) {
+    if (response.ok && data.access_token) {
       accessToken = data.access_token
+      showAuthMessage("✅ Вы успешно вошли в систему")
+    } else {
+      showAuthMessage(data.detail || "Ошибка входа", "danger")
     }
   }
 
@@ -124,13 +138,20 @@
     })
 
     const data = await response.json()
-    document.getElementById("authResult").textContent =
-      JSON.stringify(data, null, 2)
-
     if (response.ok) {
-      alert("Регистрация успешна! Теперь можно войти.")
+      showAuthMessage("✅ Вы успешно зарегистрированы. Теперь можно войти.")
+    } else {
+      showAuthMessage(data.detail || "Ошибка регистрации", "danger")
     }
   }
+
+  function showAuthMessage(message, type = "success") {
+    const authResult = document.getElementById("authResult")
+
+    authResult.textContent = message
+    authResult.className = "mt-3 alert alert-" + type
+  }
+
 
   async function askAI() {
     if (!accessToken) {
@@ -161,8 +182,8 @@
       document.getElementById("aiResponse").textContent =
         JSON.stringify(data.answer, null, 2)
 
-      document.getElementById("history").textContent =
-        JSON.stringify(history, null, 2)
+      document.getElementById("history").innerText =
+        renderHistory(history)
 
     } catch (err) {
       console.error(err)

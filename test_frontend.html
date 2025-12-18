@@ -36,10 +36,13 @@
 <h1>🧪 ИИ для бухгалтера - Фронтенд</h1>
 
 <div class="box">
-  <h2>🔐 Авторизация</h2>
+  <h2>🔐 Авторизация / Регистрация</h2>
   <input id="email" placeholder="Email" />
   <input id="password" type="password" placeholder="Пароль" />
+
   <button onclick="login()">Войти</button>
+  <button onclick="register()">Зарегистрироваться</button>
+
   <pre id="authResult"></pre>
 </div>
 
@@ -84,14 +87,32 @@
     }
   }
 
-async function askAI() {
+  async function register() {
+    const email = document.getElementById("email").value
+    const password = document.getElementById("password").value
+
+    const response = await fetch(`${API_BASE}/auth/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    })
+
+    const data = await response.json()
+    document.getElementById("authResult").textContent =
+      JSON.stringify(data, null, 2)
+
+    if (response.ok) {
+      alert("Регистрация успешна! Теперь можно войти.")
+    }
+  }
+
+  async function askAI() {
     if (!accessToken) {
       alert("Сначала авторизуйся")
       return
     }
 
     const question = document.getElementById("question").value
-
     history.push({ role: "user", content: question })
 
     try {
@@ -109,13 +130,10 @@ async function askAI() {
       })
 
       const data = await response.json()
-
       history.push({ role: "assistant", content: data.answer })
 
-      console.log("Ответ backend:", data)
-
       document.getElementById("aiResponse").textContent =
-        JSON.stringify(data.answer ?? data, null, 2)
+        JSON.stringify(data.answer, null, 2)
 
       document.getElementById("history").textContent =
         JSON.stringify(history, null, 2)
@@ -127,6 +145,7 @@ async function askAI() {
     }
   }
 </script>
+
 
 </body>
 </html>

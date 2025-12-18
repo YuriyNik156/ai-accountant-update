@@ -173,6 +173,21 @@ POST /api/v1/assistant/query
 
 Файл откроется, например, по адресу:
 
+#### Вариант 2
+
+python -m http.server 5500 
+
+* Запустить backend:
+```
+uvicorn app.main:app --reload
+```
+
+* Запустить сервер:
+```
+python -m http.server 5500
+```
+
+* Открыть в браузере:
 ```
 http://127.0.0.1:5500/test_frontend.html
 ```

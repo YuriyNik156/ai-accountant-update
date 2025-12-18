@@ -1,9 +1,14 @@
 from fastapi import FastAPI
-from app.api.v1 import assistant, auth
+from app.api.v1 import assistant
 from app.database.base import Base
 from app.database.session import engine
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from app.api.v1.auth import router as auth_router
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
 app = FastAPI(title="AI Assistant Backend")
 
@@ -20,7 +25,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Создаем все таблицы, если их нет
+# HTML
+@app.get("/")
+def serve_frontend():
+    return FileResponse(os.path.join(FRONTEND_DIR, "test_frontend.html"))
+
+# Таблицы
 Base.metadata.create_all(bind=engine)
 
 # Роутеры

@@ -40,9 +40,10 @@ async def query_assistant(
     current_user = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    history_payload = [
-        item.model_dump() for item in request.history
-    ] if request.history else []
+    history_payload = (
+        [item.model_dump() for item in request.history][-5:]
+        if request.history else []
+    )
 
     ai_response = await ask_assistant(
         query=request.query,

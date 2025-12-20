@@ -1,10 +1,13 @@
 from fastapi import FastAPI
-from app.api.v1 import assistant
-from app.database.base import Base
-from app.database.session import engine
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
+from app.api.v1 import assistant
 from app.api.v1.auth import router as auth_router
+from app.database.base import Base
+from app.database.session import engine
+
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,14 +28,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# HTML
+# --- HTML страницы ---
+
 @app.get("/")
-def serve_frontend():
-    return FileResponse(os.path.join(FRONTEND_DIR, "test_frontend.html"))
+def index():
+    return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
 
-# Таблицы
-Base.metadata.create_all(bind=engine)
+@app.get("/login")
+def login():
+    return FileResponse(os.path.join(FRONTEND_DIR, "login.html"))
 
-# Роутеры
+@app.get("/registration")
+def registration():
+    return FileResponse(os.path.join(FRONTEND_DIR, "registration.html"))
+
+# --- Static files ---
+app.mount("/frontend", StaticFiles(directory=FRONTEND_DIR), name="frontend")
+
+# --- API ---
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
 app.include_router(assistant.router, prefix="/api/v1", tags=["assistant"])
+
+# --- DB ---
+Base.metadata.create_all(bind=engine)

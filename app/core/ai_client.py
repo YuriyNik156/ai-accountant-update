@@ -1,4 +1,3 @@
-# app/core/ai_client.py
 import httpx
 from typing import List, Dict
 

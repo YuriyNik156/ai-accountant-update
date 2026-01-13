@@ -17,3 +17,6 @@ if not AI_BASE_URL or not AI_API_KEY:
     raise RuntimeError("AI_BASE_URL или AI_API_KEY не заданы в окружении")
 if not SECRET_KEY:
     raise RuntimeError("SECRET_KEY не задан в окружении")
+
+print("AI_BASE_URL:", AI_BASE_URL)
+print("AI_API_KEY:", AI_API_KEY)

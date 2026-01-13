@@ -51,3 +51,4 @@ app.include_router(assistant.router, prefix="/api/v1", tags=["assistant"])
 
 # --- DB ---
 Base.metadata.create_all(bind=engine)
+

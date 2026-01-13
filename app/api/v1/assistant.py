@@ -25,8 +25,8 @@ async def ask_assistant(query: str, session_id: str, history: list = None):
             )
             response.raise_for_status()
             return response.json()
-        except httpx.HTTPError:
-            # fallback, если AI недоступен
+        except httpx.HTTPError as e:
+            print("AI HTTP ERROR:", str(e))
             return {
                 "answer": "AI-ассистент временно недоступен. Попробуйте позже.",
                 "sources": [],
